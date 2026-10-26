@@ -1,0 +1,15 @@
+flowchart TB
+  Browser["Browser: login.html / index.html"]
+  Nginx["Nginx reverse proxy :8080<br/>Only published service"]
+  API["Spring Boot REST API<br/>Controller → Service → Repository"]
+  Security["Spring Security + JWT + BCrypt<br/>RBAC / ownership checks"]
+  DB[("MySQL 8.4<br/>users / wallets / transfers / security_events")]
+  Browser -->|"HTTP JSON /api"| Nginx
+  Nginx --> API
+  API --- Security
+  API --> DB
+  subgraph Private["Docker private internal network"]
+    Nginx
+    API
+    DB
+  end

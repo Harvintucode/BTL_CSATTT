@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102b52">
+  <title>Đăng nhập | NovaBank</title>
+  <style>
+    :root{--navy:#102b52;--blue:#2f6fed;--ink:#18253b;--muted:#7c899d;--line:#e5ebf3;--bg:#f4f7fc;--green:#159b72}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+    button,input{font:inherit}
+    .page{min-height:100vh;display:grid;grid-template-columns:minmax(300px,1fr) minmax(400px,1fr)}
+    .visual{position:relative;overflow:hidden;background:radial-gradient(circle at 15% 15%,#2b5c99 0,transparent 35%),linear-gradient(145deg,#102746,#173e70 60%,#2464a7);padding:48px 8%;color:white;display:flex;flex-direction:column;justify-content:space-between}
+    .visual:before,.visual:after{content:"";position:absolute;border:1px solid #ffffff19;border-radius:50%;width:520px;height:520px;right:-190px;top:25%;box-shadow:0 0 0 45px #ffffff08,0 0 0 95px #ffffff06}
+    .visual:after{width:280px;height:280px;right:5%;top:42%;box-shadow:0 0 0 28px #ffffff07}
+    .brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:850;letter-spacing:-.5px;position:relative;z-index:1}
+    .brand-mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#83b1ff,#3473f4);display:grid;place-items:center;font-size:23px;box-shadow:0 8px 22px #061a3570}
+    .hero{position:relative;z-index:1;max-width:510px;margin:55px 0}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:30px;background:#ffffff12;border:1px solid #ffffff24;color:#d6e5ff;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase}
+    .eyebrow i{width:7px;height:7px;background:#60e2ad;border-radius:50%}
+    h1{font-size:clamp(35px,4.1vw,56px);line-height:1.1;letter-spacing:-1.8px;margin:22px 0 18px}
+    .hero p{color:#c3d4eb;line-height:1.8;font-size:14px;max-width:430px;margin:0}
+    .feature-list{display:grid;gap:15px;margin-top:36px}
+    .feature{display:flex;align-items:center;gap:12px;color:#e3edfb;font-size:12px}
+    .feature-icon{width:34px;height:34px;border-radius:11px;background:#ffffff14;display:grid;place-items:center;font-size:16px}
+    .visual-footer{position:relative;z-index:1;color:#8faed3;font-size:10px;line-height:1.7}
+    .form-side{display:flex;align-items:center;justify-content:center;padding:35px 24px;background:#fff}
+    .login-card{width:100%;max-width:405px}
+    .mobile-brand{display:none}
+    .small-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--blue)}
+    h2{font-size:30px;letter-spacing:-.9px;margin:10px 0 8px}
+    .intro{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 28px}
+    .field{margin-bottom:17px}
+    .field-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    label{font-size:11px;font-weight:750;color:#3e4d65}
+    .field-head a{font-size:10px;font-weight:750;color:var(--blue);text-decoration:none}
+    .input-wrap{position:relative}
+    input[type=text],input[type=password],input[type=email]{width:100%;border:1px solid #dfe6ef;border-radius:11px;padding:13px 43px 13px 13px;font-size:12px;color:var(--ink);outline:none;background:white;transition:.15s}
+    input:focus{border-color:#80a6f7;box-shadow:0 0 0 3px #2f6fed12}
+    input::placeholder{color:#a6b0bf}
+    .input-icon{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#8d9ab0;font-size:16px}
+    .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#7888a0;padding:6px;font-size:11px}
+    .remember-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 22px;font-size:11px;color:#63718a}
+    .remember{display:flex;align-items:center;gap:8px}
+    input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;margin:0}
+    .remember a{color:var(--blue);text-decoration:none;font-weight:750}
+    .submit{width:100%;border:0;border-radius:11px;background:var(--blue);color:#fff;padding:14px;font-size:12px;font-weight:800;box-shadow:0 8px 18px #2f6fed30;transition:.15s}
+    .submit:hover{background:#245dd2;transform:translateY(-1px)}
+    .separator{display:flex;align-items:center;gap:12px;color:#a0aabc;font-size:10px;margin:22px 0}
+    .separator:before,.separator:after{content:"";height:1px;background:var(--line);flex:1}
+    .demo-login{border:1px solid #dfe8f8;background:#f6f9ff;border-radius:12px;padding:13px;color:#51637e;font-size:10px;line-height:1.7}
+    .demo-login strong{color:#294a7d}
+    .demo-login button{display:block;margin-top:9px;border:0;background:transparent;color:var(--blue);font-weight:800;font-size:10px;padding:0}
+    .bottom-note{text-align:center;font-size:10px;color:#9aa5b5;margin-top:26px;line-height:1.7}
+    .security{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;color:#7d8ca1;font-size:10px}
+    .error{display:none;background:#fff0f0;border:1px solid #ffd5d8;color:#bd3445;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.5;margin:-7px 0 15px}
+    .error.show{display:block}
+    .notice{display:none;background:#eaf8f1;border:1px solid #c9eedc;color:#147653;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.5;margin-bottom:15px}
+    .notice.show{display:block}
+    @media(max-width:800px){.page{grid-template-columns:1fr}.visual{display:none}.form-side{min-height:100vh;padding:28px 22px}.mobile-brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:850;margin-bottom:44px}.mobile-brand .brand-mark{width:36px;height:36px;font-size:19px}.login-card{max-width:420px}}
+    @media(min-width:801px) and (max-height:750px){.visual{padding-top:30px;padding-bottom:25px}.hero{margin:25px 0}.feature-list{margin-top:22px}.form-side{padding-top:25px;padding-bottom:25px}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <section class="visual" aria-label="Giới thiệu NovaBank">
+    <div class="brand"><div class="brand-mark">N</div>NovaBank</div>
+    <div class="hero">
+      <span class="eyebrow"><i></i> Ngân hàng số thế hệ mới</span>
+      <h1>Quản lý tài chính.<br>Đơn giản hơn.</h1>
+      <p>Một không gian giao dịch trực quan giúp bạn theo dõi số dư, quản lý lịch sử và mô phỏng chuyển tiền trên cùng một nền tảng.</p>
+      <div class="feature-list">
+        <div class="feature"><span class="feature-icon">↔</span>Chuyển tiền với quy trình xác nhận rõ ràng</div>
+        <div class="feature"><span class="feature-icon">◷</span>Theo dõi lịch sử giao dịch dễ dàng</div>
+        <div class="feature"><span class="feature-icon">▣</span>Giao diện tối ưu cho máy tính và điện thoại</div>
+      </div>
+    </div>
+    <div class="visual-footer">© 2026 NovaBank UI Demo<br>Đây là sản phẩm mô phỏng phục vụ học tập, không phải ngân hàng thật.</div>
+  </section>
+
+  <section class="form-side">
+    <div class="login-card">
+      <div class="mobile-brand"><div class="brand-mark">N</div>NovaBank</div>
+      <div class="small-label">Chào mừng trở lại</div>
+      <h2>Đăng nhập tài khoản</h2>
+      <p class="intro">Nhập thông tin đăng nhập để truy cập không gian ngân hàng số demo của bạn.</p>
+
+      <div class="error" id="errorBox" role="alert"></div>
+      <div class="notice" id="noticeBox" role="status"></div>
+
+      <form id="loginForm">
+        <div class="field">
+          <div class="field-head"><label for="username">Tên đăng nhập</label></div>
+          <div class="input-wrap"><input id="username" name="username" type="text" autocomplete="username" placeholder="Nhập tên đăng nhập" required minlength="3"><span class="input-icon">♙</span></div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="password">Mật khẩu</label><a href="#" id="forgotLink">Quên mật khẩu?</a></div>
+          <div class="input-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required minlength="4"><button type="button" class="password-toggle" id="togglePassword" aria-label="Hiện mật khẩu">Hiện</button></div>
+        </div>
+        <div class="remember-row">
+          <label class="remember"><input type="checkbox" id="remember"> Ghi nhớ tên đăng nhập</label>
+          <a href="#" id="helpLink">Cần trợ giúp?</a>
+        </div>
+        <button type="submit" class="submit">Đăng nhập an toàn&nbsp; →</button>
+      </form>
+
+      <div class="separator">HOẶC DÙNG TÀI KHOẢN DEMO</div>
+      <div class="demo-login">
+        <strong>Thông tin dùng thử</strong><br>
+        Tên đăng nhập: <b>huy</b> &nbsp;·&nbsp; Mật khẩu: <b>123456</b>
+        <button type="button" id="fillDemo">Điền thông tin demo ↗</button>
+      </div>
+      <div class="security">♧ &nbsp; Giao diện demo — không nhập mật khẩu ngân hàng thật</div>
+      <div class="bottom-note">Bằng việc đăng nhập, bạn đang sử dụng môi trường mô phỏng.<br>Kết nối API demo trong Docker; không có dữ liệu hoặc giao dịch ngân hàng thật.</div>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const errorBox = $('errorBox'), noticeBox = $('noticeBox');
+  const showError = msg => { noticeBox.classList.remove('show'); errorBox.textContent = msg; errorBox.classList.add('show'); };
+  const showNotice = msg => { errorBox.classList.remove('show'); noticeBox.textContent = msg; noticeBox.classList.add('show'); };
+  $('togglePassword').addEventListener('click', () => {
+    const input = $('password');
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    $('togglePassword').textContent = visible ? 'Ẩn' : 'Hiện';
+    $('togglePassword').setAttribute('aria-label', visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+  });
+  $('fillDemo').addEventListener('click', () => {
+    $('username').value = 'huy'; $('password').value = '123456';
+    showNotice('Đã điền tài khoản demo. Nhấn “Đăng nhập an toàn” để tiếp tục.');
+  });
+  $('forgotLink').addEventListener('click', e => {
+    e.preventDefault();
+    showNotice('Đây là tài khoản demo, không có quy trình khôi phục mật khẩu thật. Hãy dùng huy / 123456.');
+  });
+  $('helpLink').addEventListener('click', e => {
+    e.preventDefault();
+    showNotice('Tài khoản dùng thử: huy / 123456. Không sử dụng thông tin đăng nhập ngân hàng thật trên trang demo.');
+  });
+  try {
+    const remembered = localStorage.getItem('novabank_demo_username');
+    if (remembered) { $('username').value = remembered; $('remember').checked = true; }
+  } catch {}
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const username = $('username').value.trim();
+    const password = $('password').value;
+    const button = document.querySelector('.submit');
+    if (button.disabled) return;
+    errorBox.classList.remove('show');
+    button.disabled = true;
+    button.textContent = 'Đang xác thực…';
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || data.detail || (response.status === 429 ? 'Tạm khóa do đăng nhập sai nhiều lần.' : 'Tên đăng nhập hoặc mật khẩu chưa đúng.'));
+      sessionStorage.setItem('novabank_token', data.token);
+      sessionStorage.setItem('novabank_user', JSON.stringify(data.user));
+      if ($('remember').checked) localStorage.setItem('novabank_demo_username', username);
+      else localStorage.removeItem('novabank_demo_username');
+      window.location.href = 'index.html';
+    } catch (err) {
+      showError(err instanceof TypeError ? 'Không thể kết nối backend. Hãy kiểm tra Docker Compose.' : (err.message || 'Đăng nhập thất bại.'));
+    } finally {
+      button.disabled = false;
+      button.innerHTML = 'Đăng nhập an toàn&nbsp; →';
+    }
+  });
+})();
+</script>
+</body>
+</html>

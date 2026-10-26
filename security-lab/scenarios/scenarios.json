@@ -1,0 +1,12 @@
+{
+  "project": "NovaBank Mini Cyber Range",
+  "scope": "Chỉ localhost và Docker network do nhóm sở hữu; dữ liệu giả lập",
+  "scenarios": [
+    {"id":"RECON_PORT_SCAN","title":"Recon + Port Scan","severity":"MEDIUM","v1":"Chạy kèm docker-compose.v1-exposed.yml: MySQL 3306 và backend 8081 được publish trên 127.0.0.1","v2":"Chỉ Nginx được publish trên 127.0.0.1:8080; backend/DB không publish","evidence":"docker compose ps; docker network inspect"},
+    {"id":"EXPOSED_SERVICE","title":"Expose port/service không cần thiết","severity":"HIGH","v1":"docker-compose.v1-exposed.yml publish DB/backend trên loopback và gắn thêm vào network edge","v2":"Không khai báo ports cho DB/backend; private network internal","evidence":"docker-compose.yml; docker compose port db 3306"},
+    {"id":"BRUTE_FORCE","title":"Brute-force Login","severity":"HIGH","v1":"LAB_MODE=vulnerable không giới hạn số lần thử","v2":"fixed trả HTTP 429 sau 5 lần sai cho username","evidence":"HTTP status và security_events"},
+    {"id":"SQL_INJECTION","title":"SQL Injection","severity":"CRITICAL","v1":"Tìm kiếm nối chuỗi SQL trong mode vulnerable","v2":"Prepared statement dùng tham số q","evidence":"Kết quả /api/lab/customer-search và log"},
+    {"id":"IDOR","title":"IDOR / Broken Access Control","severity":"HIGH","v1":"Mode vulnerable lấy wallet theo ID không ràng buộc owner","v2":"wallet ID phải thuộc user trong JWT, nếu không trả 403","evidence":"GET /api/wallets/2 với token huy"},
+    {"id":"HTTP_SNIFFING","title":"HTTP Sniffing","severity":"MEDIUM","v1":"HTTP payload plaintext trong lab localhost","v2":"Tài liệu hóa yêu cầu TLS trước khi triển khai; reverse proxy local vẫn HTTP","evidence":"Chỉ capture loopback/lab traffic được phép; không dùng dữ liệu thật"}
+  ]
+}

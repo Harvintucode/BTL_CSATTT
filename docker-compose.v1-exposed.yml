@@ -1,0 +1,19 @@
+# V1 demo for RECON_PORT_SCAN / EXPOSED_SERVICE scenarios. LOCAL LAB ONLY.
+# Publishes the database and backend on the host loopback (127.0.0.1) so a port scan has something to find.
+# Never run this on a shared or public machine; the DB uses lab credentials from .env.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.v1-exposed.yml up -d
+#   docker compose ps          # db :3306 and backend :8081 are now published
+#
+# Return to V2 (nothing but nginx published):
+#   docker compose -f docker-compose.yml up -d --force-recreate db backend
+services:
+  db:
+    ports:
+      - "127.0.0.1:3306:3306"
+    # A container attached only to an `internal` network cannot publish ports, so also join `edge`.
+    networks: [private, edge]
+  backend:
+    ports:
+      - "127.0.0.1:8081:8080"
+    networks: [private, edge]

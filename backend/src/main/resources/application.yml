@@ -1,0 +1,29 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/novabank}
+    username: ${SPRING_DATASOURCE_USERNAME:novabank_app}
+    password: ${SPRING_DATASOURCE_PASSWORD:lab_db_password_change_me}
+  flyway:
+    enabled: true
+  jackson:
+    time-zone: UTC
+    deserialization:
+      fail-on-unknown-properties: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:local-only-change-this-secret-to-at-least-32-characters}
+  cors:
+    allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:8080}
+lab:
+  mode: ${LAB_MODE:fixed}
