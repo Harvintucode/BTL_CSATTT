@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PTIT eMB – Ngân hàng số</title>
+<meta name="description" content="PTIT eMB Digital Banking – đồ án học thuật minh họa phòng chống Broken Access Control (OWASP A01:2025)">
+<style>
+:root{
+  --navy:#0b1f4d; --royal:#1d4ed8; --violet:#6d28d9;
+  --bg:#f3f6fb; --panel:#fff; --text:#0f172a; --muted:#64748b; --line:#e3e8f1;
+  --ok:#047857; --ok-bg:#d1fae5; --warn:#b45309; --warn-bg:#fef3c7; --bad:#b91c1c; --bad-bg:#fee2e2;
+  --radius:14px; --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px rgba(15,23,42,.06);
+  --font:"Inter","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:15px/1.55 var(--font);color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.hide{display:none!important}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--royal);outline-offset:2px}
+
+/* ---------- Buttons & forms ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:10px;border:1px solid transparent;font-weight:600;font-size:14px;cursor:pointer;background:var(--accent,var(--royal));color:var(--accent-ink,#fff);transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.08)} .btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.block{width:100%}
+.btn.ghost{background:#fff;color:var(--text);border-color:var(--line)}
+.btn.ok{background:var(--ok)} .btn.bad{background:#fff;color:var(--bad);border-color:#f3c0c0}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.field input,.field select{width:100%;padding:11px 13px;border:1px solid #cdd5e3;border-radius:10px;background:#fff;font-size:14.5px}
+.field input:focus,.field select:focus{border-color:var(--accent,var(--royal));outline:3px solid color-mix(in srgb,var(--accent,var(--royal)) 18%,transparent)}
+.field small{display:block;color:var(--muted);margin-top:5px;font-size:12px}
+.field input[readonly]{background:#f6f8fc;color:#475569}
+
+/* ---------- Landing ---------- */
+.topbar{background:var(--navy);color:#cbd5f5;font-size:13px}
+.topbar .in{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:40px}
+.seg{display:flex;white-space:nowrap;overflow-x:auto}
+.seg button{background:none;border:0;color:#aab6e6;padding:10px 16px;font-weight:600;cursor:pointer;height:40px;border-bottom:2px solid transparent}
+.seg button.on{color:#fff;border-color:#8b9cf4}
+.seg button:hover{color:#fff}
+.site-nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.site-nav .in{max-width:1240px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;gap:36px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:21px;color:var(--navy);letter-spacing:-.3px;text-decoration:none}
+.brand .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--royal),var(--violet));display:grid;place-items:center;color:#fff}
+.menu{display:flex;gap:6px;flex:1}
+.menu button{background:none;border:0;padding:10px 14px;font-weight:600;color:#334155;border-radius:8px;cursor:pointer}
+.menu button:hover{background:#eef2ff;color:var(--royal)}
+.hero{background:radial-gradient(1200px 500px at 85% -10%,#c7d2fe 0,transparent 60%),linear-gradient(135deg,#eef2ff,#e0e7ff 55%,#ede9fe)}
+.hero .in{max-width:1240px;margin:0 auto;padding:56px 24px 110px;display:grid;grid-template-columns:400px 1fr;gap:56px;align-items:center}
+.login-card{background:#fff;border-radius:18px;padding:30px;box-shadow:0 18px 48px rgba(29,43,100,.16);border:1px solid #dfe5ff}
+.login-card h2{margin:0 0 4px;font-size:21px;color:var(--navy)}
+.login-card p{margin:0 0 20px;color:var(--muted);font-size:13.5px}
+.login-card .btn{--accent:var(--royal);background:linear-gradient(90deg,var(--royal),var(--violet))}
+.alert{padding:10px 13px;border-radius:10px;font-size:13.5px;margin-bottom:14px;background:var(--bad-bg);color:var(--bad)}
+.hero h1{font-size:44px;line-height:1.15;margin:0 0 16px;color:var(--navy);letter-spacing:-1px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--royal),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{font-size:17px;color:#475569;max-width:560px;margin:0 0 26px}
+.badges{display:flex;gap:14px;flex-wrap:wrap}
+.badge-card{background:#fff;border:1px solid #dfe5ff;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 18px rgba(29,43,100,.07)}
+.badge-card .ico{color:var(--royal);width:24px;height:24px}
+.badge-card b{display:block;font-size:14px;color:var(--navy)} .badge-card span{font-size:12.5px;color:var(--muted)}
+.strip{max-width:1100px;margin:-52px auto 44px;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;position:relative;z-index:3}
+.strip button{background:none;border:0;border-radius:12px;padding:14px 4px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:#334155}
+.strip button:hover{background:#eef2ff;color:var(--royal)}
+.strip .ico{width:26px;height:26px;color:var(--royal)}
+.rates{max-width:1240px;margin:0 auto 64px;padding:0 24px;display:grid;grid-template-columns:280px 1fr 1.15fr;gap:22px}
+.rates h2,.rates h4{margin:0}
+.util{background:linear-gradient(180deg,#eef2ff,#fff);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+.util h2{font-size:24px;color:var(--navy);margin-bottom:16px;line-height:1.2}
+.util button{width:100%;display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:10px;font-weight:600;color:var(--navy);cursor:pointer}
+.util button:hover{border-color:var(--royal)}
+.rate-card{background:#fff;border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+.rate-card.dark{background:linear-gradient(150deg,#14123f,#2a1a8c 70%,#3b3bd0);color:#fff}
+.rate-card h4{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--navy)} .rate-card.dark h4{color:#c7d2fe}
+.rate-card .note{font-size:11.5px;color:var(--muted);margin-top:12px}.rate-card.dark .note{color:#a5b4fc}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:12px 10px;border-bottom:1px solid #eef1f6;vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+.dark table.t th{color:#a5b4fc;border-color:rgba(255,255,255,.14)} .dark table.t td{border-color:rgba(255,255,255,.08)}
+.num{text-align:right;font-variant-numeric:tabular-nums} th.num{text-align:right}
+footer.site{background:var(--navy);color:#a9b6e0;padding:28px 24px;font-size:13px;text-align:center}
+footer.site b{color:#fff}
+
+/* ---------- Portal ---------- */
+#portal{--side-bg:#e8f3fc;--side-text:#10405f;--side-muted:#5d86a3;--side-hover:#d6e9f8;--side-act-bg:#2b8fd8;--side-act-text:#fff;--accent:#2b8fd8;--soft:#e1f0fb;--top-bg:#fff;--brand-ink:#0c3a5e}
+#portal[data-role=TELLER]{--side-bg:#0b2a6b;--side-text:#e6ecff;--side-muted:#8fa6df;--side-hover:#163a8a;--side-act-bg:#2f5fd0;--side-act-text:#fff;--accent:#1e3a8a;--soft:#e3e9f7;--brand-ink:#fff}
+#portal[data-role=ADMIN]{--side-bg:#111318;--side-text:#e5e7eb;--side-muted:#7b8391;--side-hover:#1c1f27;--side-act-bg:#2a2e37;--side-act-text:#fff;--accent:#374151;--soft:#eceef1;--brand-ink:#fff}
+.shell{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+.side{background:var(--side-bg);color:var(--side-text);padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:auto}
+.side .brand{color:var(--brand-ink);padding:2px 8px 18px;font-size:19px}
+.me{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--side-text) 8%,transparent);margin-bottom:18px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--side-act-bg);color:var(--side-act-text);display:grid;place-items:center;font-weight:700;flex:none}
+#portal[data-role=ADMIN] .avatar{background:#3a3f4b}
+.me b{display:block;font-size:14px;line-height:1.25} .me small{color:var(--side-muted);font-size:12px}
+.nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--side-muted);padding:10px 12px 6px;font-weight:700}
+.nav button{width:100%;display:flex;align-items:center;gap:12px;background:none;border:0;color:var(--side-text);padding:11px 12px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;text-align:left;margin-bottom:2px}
+.nav button:hover{background:var(--side-hover)}
+.nav button.on{background:var(--side-act-bg);color:var(--side-act-text)}
+#portal[data-role=ADMIN] .nav button.on{box-shadow:inset 3px 0 0 #d1d5db}
+.nav .cnt{margin-left:auto;background:#f59e0b;color:#1f2937;border-radius:99px;font-size:11px;padding:1px 8px;font-weight:800}
+.side .foot{margin-top:auto;padding-top:14px}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:14px;padding:0 32px;height:68px;background:var(--top-bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+#portal[data-role=ADMIN] .top{background:#1a1d24;border-color:#2a2e37;color:#e5e7eb}
+.top h1{margin:0;font-size:19px;letter-spacing:-.2px}
+.top .sub{color:var(--muted);font-size:13px}
+.top .sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:99px;background:var(--soft);color:var(--text);font-size:12px;font-weight:700}
+#portal[data-role=ADMIN] .pill{background:#2a2e37;color:#e5e7eb}
+.burger{display:none;background:none;border:0;cursor:pointer;padding:6px}
+.content{padding:28px 32px 60px;max-width:1240px;width:100%}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:1fr 1fr} .g21{grid-template-columns:1fr 1.5fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 14px;font-size:16px;display:flex;align-items:center;gap:10px}
+.card h3 .ico{color:var(--accent)}
+.card .desc{color:var(--muted);font-size:13.5px;margin:-6px 0 16px}
+.stat small{display:block;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+.stat .v{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-top:6px}
+.stat .s{font-size:13px;color:var(--muted);margin-top:2px}
+.stat.hl{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#000));color:#fff;border:0}
+.stat.hl small,.stat.hl .s{color:rgba(255,255,255,.78)}
+#portal[data-role=ADMIN] .stat.hl{background:linear-gradient(135deg,#374151,#111827)}
+.status{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700}
+.st-PENDING{background:var(--warn-bg);color:var(--warn)} .st-APPROVED,.st-SUCCESS{background:var(--ok-bg);color:var(--ok)} .st-REJECTED{background:var(--bad-bg);color:var(--bad)}
+.vip{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:6px;background:#ede9fe;color:#5b21b6;font-size:11px;font-weight:700}
+.in-amt{color:var(--ok);font-weight:700}.out-amt{color:var(--bad);font-weight:700}
+.tbl-wrap{overflow:auto}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row .grow{flex:1;min-width:180px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.seg2{display:inline-flex;background:#eef1f7;border-radius:10px;padding:3px}
+.seg2 button{background:none;border:0;padding:6px 14px;border-radius:8px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+.seg2 button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.perm{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.perm li{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.perm .ico{width:18px;height:18px;margin-top:2px}.perm .y .ico{color:var(--ok)}.perm .n .ico{color:var(--bad)}
+.perm .n{color:var(--muted)}
+.receipt{border:1px dashed #b8c2d6;border-radius:12px;padding:16px;background:#fafbfe;margin-top:18px}
+.receipt dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:14px}.receipt dt{color:var(--muted)}.receipt dd{margin:0;font-weight:600;text-align:right}
+pre.out{margin:12px 0 0;background:#0b1020;color:#c7f9e3;padding:13px;border-radius:10px;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;overflow:auto;max-height:240px;white-space:pre-wrap;word-break:break-word}
+pre.out.err{color:#fecaca}
+
+/* ---------- Modal, toast, lab ---------- */
+.overlay{position:fixed;inset:0;background:rgba(10,18,40,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal{background:#fff;color:var(--text);border-radius:18px;max-width:440px;width:100%;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.3);text-align:center}
+.modal .ic{width:54px;height:54px;border-radius:50%;background:#eef2ff;color:var(--royal);display:grid;place-items:center;margin:0 auto 14px}
+.modal .ic .ico{width:26px;height:26px}
+.modal h3{margin:0 0 8px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:14px}
+.modal .acts{display:flex;gap:10px;justify-content:center}
+.modal dl{text-align:left;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0 0 20px;font-size:14px}.modal dt{color:var(--muted)}.modal dd{margin:0;font-weight:700;text-align:right}
+#toasts{position:fixed;top:18px;right:18px;display:grid;gap:10px;z-index:200}
+.toast{background:#0f172a;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px;max-width:380px;display:flex;gap:10px;align-items:flex-start;animation:in .2s ease-out;border-left:4px solid var(--ok)}
+.toast.bad{border-color:#f87171}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+@media(max-width:1000px){
+  .hero .in{grid-template-columns:1fr;padding-bottom:90px}.rates{grid-template-columns:1fr}.strip{grid-template-columns:repeat(4,1fr);margin:-40px 16px 36px}
+  .menu{display:none}.g3,.g2,.g21{grid-template-columns:1fr}
+  .shell{grid-template-columns:1fr}.side{position:fixed;inset:0 auto 0 0;width:272px;z-index:50;transform:translateX(-100%);transition:transform .2s}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(10,18,40,.5)}.burger{display:block}.top{padding:0 16px}.content{padding:20px 16px 90px}
+  .hero h1{font-size:32px}
+}
+@media(max-width:560px){.seg button{padding:10px 11px;font-size:12.5px}.topbar .in,.site-nav .in{padding:0 14px}.top .sub{display:none}.topbar .in>span{display:none}}
+</style>
+</head>
+<body>
+
+<div id="toasts" aria-live="polite"></div>
+
+<!-- ============================ LANDING ============================ -->
+<div id="landing">
+  <div class="topbar"><div class="in">
+    <div class="seg" role="tablist">
+      <button class="on">Cá nhân</button>
+      <button onclick="soon('Khách hàng Doanh nghiệp')">Doanh nghiệp</button>
+      <button onclick="soon('Khách hàng Cao cấp')">Khách hàng cao cấp</button>
+    </div>
+    <span>Hotline 24/7: 1900 xxxx &nbsp;·&nbsp; Đồ án học thuật PTIT</span>
+  </div></div>
+
+  <header class="site-nav"><div class="in">
+    <a class="brand" href="#"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><use href="#i-landmark"/></svg></span>PTIT eMB</a>
+    <nav class="menu" aria-label="Sản phẩm">
+      <button onclick="soon('Thẻ quốc tế')">Thẻ</button>
+      <button onclick="soon('Tiền gửi số')">Tiền gửi</button>
+      <button onclick="soon('Vay vốn trực tuyến')">Cho vay</button>
+      <button onclick="soon('Bảo hiểm')">Bảo hiểm</button>
+      <button onclick="soon('Đầu tư')">Đầu tư</button>
+    </nav>
+  </div></header>
+
+  <section class="hero"><div class="in">
+    <form class="login-card" onsubmit="return doLogin(event)" autocomplete="on">
+      <h2>Đăng nhập eMB Banking</h2>
+      <p>Quản lý tài chính, chuyển tiền và phê duyệt tín dụng.</p>
+      <div id="loginErr" class="alert hide" role="alert"></div>
+      <div class="field"><label for="u">Tên đăng nhập</label><input id="u" autocomplete="username" required></div>
+      <div class="field"><label for="p">Mật khẩu</label><input id="p" type="password" autocomplete="current-password" required></div>
+      <button class="btn block" id="loginBtn">Đăng nhập</button>
+    </form>
+    <div>
+      <h1>Ngân hàng số<br><em>an toàn từ thiết kế</em></h1>
+      <p class="lead">Chuyển tiền tức thời, quản lý tín dụng phân cấp và kiểm soát truy cập chặt chẽ theo chuẩn OWASP A01:2025.</p>
+      <div class="badges">
+        <div class="badge-card"><svg class="ico"><use href="#i-transfer"/></svg><div><b>Chuyển tiền 24/7</b><span>Xử lý tức thời</span></div></div>
+        <div class="badge-card"><svg class="ico"><use href="#i-shield"/></svg><div><b>Phân quyền đa tầng</b><span>RBAC + hạn mức duyệt</span></div></div>
+        <div class="badge-card"><svg class="ico"><use href="#i-activity"/></svg><div><b>Nhật ký kiểm toán</b><span>Truy vết mọi truy cập</span></div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <div class="strip" role="list">
+    <button onclick="soon('Thanh toán hóa đơn')"><svg class="ico"><use href="#i-receipt"/></svg>Thanh toán</button>
+    <button onclick="soon('Thẻ ngân hàng')"><svg class="ico"><use href="#i-card"/></svg>Thẻ</button>
+    <button onclick="soon('Tiền gửi số')"><svg class="ico"><use href="#i-wallet"/></svg>Tiền gửi</button>
+    <button onclick="soon('Vay vốn')"><svg class="ico"><use href="#i-landmark"/></svg>Vay vốn</button>
+    <button onclick="soon('Đầu tư')"><svg class="ico"><use href="#i-trend"/></svg>Đầu tư</button>
+    <button onclick="soon('Bảo hiểm')"><svg class="ico"><use href="#i-umbrella"/></svg>Bảo hiểm</button>
+    <button onclick="soon('Ưu đãi')"><svg class="ico"><use href="#i-gift"/></svg>Ưu đãi</button>
+    <button onclick="soon('Dịch vụ khác')"><svg class="ico"><use href="#i-globe"/></svg>Khác</button>
+  </div>
+
+  <section class="rates">
+    <div class="util">
+      <h2>Công cụ &amp;<br>tiện ích</h2>
+      <button onclick="soon('Tính khoản vay')">Tính toán khoản vay <span>›</span></button>
+      <button onclick="soon('Tính lãi tiền gửi')">Tính lãi tiền gửi <span>›</span></button>
+      <button onclick="soon('Tra cứu sổ tiền gửi')">Tra cứu tiền gửi <span>›</span></button>
+      <button onclick="soon('Tài liệu &amp; biểu mẫu')">Tài liệu &amp; biểu mẫu <span>›</span></button>
+    </div>
+    <div class="rate-card">
+      <h4>Lãi suất tiền gửi</h4>
+      <table class="t" style="margin-top:8px"><thead><tr><th>Kỳ hạn</th><th class="num">&lt; 1 tỷ (%/năm)</th><th class="num">≥ 1 tỷ (%/năm)</th></tr></thead><tbody>
+        <tr><td><b>1 tháng</b></td><td class="num">4,50</td><td class="num">4,50</td></tr>
+        <tr><td><b>3 tháng</b></td><td class="num">4,65</td><td class="num">4,70</td></tr>
+        <tr><td><b>6 tháng</b></td><td class="num">5,20</td><td class="num">5,30</td></tr>
+        <tr><td><b>12 tháng</b></td><td class="num">5,80</td><td class="num">5,85</td></tr>
+        <tr><td><b>24 tháng</b></td><td class="num">6,50</td><td class="num">6,50</td></tr>
+      </tbody></table>
+      <p class="note">Số liệu minh họa phục vụ đồ án, không phải lãi suất niêm yết.</p>
+    </div>
+    <div class="rate-card dark">
+      <h4>Tỷ giá ngoại tệ</h4>
+      <table class="t" style="margin-top:8px"><thead><tr><th>Mã</th><th class="num">Mua TM</th><th class="num">Mua CK</th><th class="num">Bán ra</th></tr></thead><tbody>
+        <tr><td><b>USD</b></td><td class="num">25.330</td><td class="num">25.385</td><td class="num">25.780</td></tr>
+        <tr><td><b>EUR</b></td><td class="num">28.004</td><td class="num">28.024</td><td class="num">29.408</td></tr>
+        <tr><td><b>GBP</b></td><td class="num">33.684</td><td class="num">33.784</td><td class="num">34.818</td></tr>
+        <tr><td><b>JPY</b></td><td class="num">156,17</td><td class="num">157,67</td><td class="num">167,75</td></tr>
+      </tbody></table>
+      <p class="note">Đơn vị: VNĐ. Số liệu minh họa.</p>
+    </div>
+  </section>
+
+  <footer class="site"><b>PTIT eMB</b> là sản phẩm học thuật phục vụ môn An toàn thông tin, không phải ngân hàng thật. Mọi dữ liệu đều là dữ liệu giả lập.</footer>
+</div>
+
+<!-- ============================ PORTAL ============================ -->
+<div id="portal" class="hide">
+  <div class="shell">
+    <aside class="side" id="side">
+      <a class="brand" href="#"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><use href="#i-landmark"/></svg></span>PTIT eMB</a>
+      <div class="me"><div class="avatar" id="avatar">A</div><div><b id="meName"></b><small id="meSub"></small></div></div>
+      <nav class="nav" id="nav" aria-label="Điều hướng chính"></nav>
+      <div class="foot nav"><button onclick="logout()"><svg class="ico"><use href="#i-logout"/></svg>Đăng xuất</button></div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <button class="burger" onclick="document.getElementById('side').classList.toggle('open')" aria-label="Mở menu"><svg class="ico"><use href="#i-menu"/></svg></button>
+        <div><h1 id="title"></h1><div class="sub" id="subtitle"></div></div>
+        <div class="sp"></div>
+        <span class="pill" id="rolePill"></span>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+
+<!-- Icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+<symbol id="i-transfer" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+<symbol id="i-landmark" viewBox="0 0 24 24"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4Z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+<symbol id="i-umbrella" viewBox="0 0 24 24"><path d="M22 12a10.06 10.06 0 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+<symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+</defs>
+</svg>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vnd = n => new Intl.NumberFormat('vi-VN').format(n) + ' ₫';
+const fdate = d => { const t = new Date(d); return isNaN(t) ? esc(d) : t.toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }); };
+const icon = n => `<svg class="ico" viewBox="0 0 24 24"><use href="#i-${n}"/></svg>`;
+const ROLE_LABEL = { USER: 'Khách hàng', TELLER: 'Giao dịch viên', ADMIN: 'Giám đốc chi nhánh' };
+
+let token = ''; try { token = sessionStorage.getItem('token') || ''; } catch {}
+let me = null, tab = 'overview', cache = {};
+
+async function api(path, method = 'GET', body) {
+  let r;
+  try {
+    r = await fetch(path, { method, headers: { 'Content-Type': 'application/json', ...(token && { Authorization: 'Bearer ' + token }) }, body: body === undefined ? undefined : JSON.stringify(body) });
+  } catch { return { status: 0, ok: false, data: { error: 'Không kết nối được máy chủ' } }; }
+  let data = {}; try { data = await r.json(); } catch {}
+  if (r.status === 401 && me && path !== '/api/login') { toast('Phiên đăng nhập đã hết hạn', true); logout(); }
+  return { status: r.status, ok: r.ok, data };
+}
+
+/* ---------- UI helpers ---------- */
+function toast(msg, bad) {
+  const el = document.createElement('div'); el.className = 'toast' + (bad ? ' bad' : ''); el.textContent = msg;
+  $('toasts').appendChild(el); setTimeout(() => el.remove(), 4200);
+}
+function modal({ iconName = 'rocket', title, text, body = '', actions }) {
+  const root = $('modalRoot'); const prev = document.activeElement;
+  const close = () => { root.innerHTML = ''; document.removeEventListener('keydown', onKey); prev && prev.focus && prev.focus(); };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  root.innerHTML = `<div class="overlay" id="ov"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="ic">${icon(iconName)}</div><h3 id="mt">${esc(title)}</h3>${text ? `<p>${text}</p>` : ''}${body}<div class="acts" id="macts"></div></div></div>`;
+  (actions || [{ label: 'Đã hiểu', primary: true }]).forEach(a => {
+    const b = document.createElement('button'); b.className = 'btn' + (a.primary ? '' : ' ghost'); b.textContent = a.label;
+    b.onclick = async () => { if (a.onClick) await a.onClick(); close(); }; $('macts').appendChild(b);
+  });
+  $('ov').addEventListener('mousedown', e => { if (e.target.id === 'ov') close(); });
+  document.addEventListener('keydown', onKey); $('macts').lastChild.focus();
+}
+const soon = name => modal({ title: name, text: 'Hệ thống đang hoàn thiện tính năng này.' });
+
+/* ---------- Auth ---------- */
+async function doLogin(e) {
+  e.preventDefault(); $('loginErr').classList.add('hide'); $('loginBtn').disabled = true;
+  const r = await api('/api/login', 'POST', { username: $('u').value.trim(), password: $('p').value });
+  $('loginBtn').disabled = false;
+  if (!r.ok) { $('loginErr').textContent = r.data.error || 'Đăng nhập thất bại'; $('loginErr').classList.remove('hide'); return false; }
+  token = r.data.token; try { sessionStorage.setItem('token', token); } catch {}
+  $('p').value = ''; await boot(); return false;
+}
+function logout() {
+  token = ''; me = null; cache = {}; try { sessionStorage.removeItem('token'); } catch {}
+  $('portal').classList.add('hide'); $('landing').classList.remove('hide'); window.scrollTo(0, 0);
+}
+async function boot() {
+  if (!token) return;
+  const r = await api('/api/me'); if (!r.ok) { token = ''; return; }
+  me = r.data.user; tab = 'overview';
+  $('landing').classList.add('hide'); $('portal').classList.remove('hide'); $('portal').dataset.role = me.role;
+  $('avatar').textContent = (me.fullName.trim().split(/\s+/).pop() || '?')[0].toUpperCase();
+  $('rolePill').textContent = ROLE_LABEL[me.role];
+  render();
+}
+
+/* ---------- Navigation ---------- */
+const NAV = {
+  USER: [['Tài khoản', [['overview', 'dash', 'Tổng quan'], ['transfer', 'transfer', 'Chuyển tiền 24/7'], ['history', 'file', 'Lịch sử & Sao kê'], ['loans', 'landmark', 'Vay vốn']]], ['Cá nhân', [['profile', 'user', 'Hồ sơ & Webhook']]]],
+  TELLER: [['Nghiệp vụ', [['overview', 'dash', 'Tổng quan'], ['customers', 'search', 'Tra cứu khách hàng'], ['approve', 'shield', 'Phê duyệt tín dụng']]], ['Cá nhân', [['profile', 'user', 'Hồ sơ cá nhân']]]],
+  ADMIN: [['Điều hành', [['overview', 'dash', 'Tổng quan'], ['customers', 'search', 'Tra cứu khách hàng'], ['approve', 'shield', 'Phê duyệt tín dụng']]], ['Quản trị', [['audit', 'activity', 'Nhật ký kiểm toán'], ['users', 'users', 'Phân quyền người dùng']]], ['Cá nhân', [['profile', 'user', 'Hồ sơ cá nhân']]]],
+};
+const TITLES = {
+  overview: ['Tổng quan', 'Tình hình tài khoản và hoạt động gần đây'], transfer: ['Chuyển tiền nội bộ 24/7', 'Trích từ tài khoản của bạn'],
+  history: ['Lịch sử giao dịch & sao kê', 'Tra cứu và xuất sao kê CSV'], loans: ['Vay vốn', 'Đăng ký và theo dõi hồ sơ vay'],
+  customers: ['Tra cứu khách hàng', 'Chế độ chỉ đọc, không có quyền chỉnh sửa số dư'], approve: ['Phê duyệt tín dụng', 'Thẩm quyền duyệt theo phân cấp'],
+  audit: ['Nhật ký kiểm toán', 'Mọi truy cập và giao dịch quan trọng'], users: ['Phân quyền người dùng', 'Chỉ Giám đốc chi nhánh được thay đổi'], profile: ['Hồ sơ cá nhân', 'Thông tin liên hệ và Webhook'],
+};
+const go = k => { tab = k; $('side').classList.remove('open'); render(); window.scrollTo(0, 0); };
+async function render() {
+  $('meName').textContent = me.fullName; $('meSub').textContent = me.role === 'USER' ? `TK ${me.accountId}` : me.tier;
+  $('nav').innerHTML = NAV[me.role].map(([label, items]) => `<div class="nav-label">${label}</div>` + items.map(([k, ic, t]) =>
+    `<button class="${k === tab ? 'on' : ''}" onclick="go('${k}')" ${k === tab ? 'aria-current="page"' : ''}>${icon(ic)}${t}${k === 'approve' && cache.pending ? `<span class="cnt">${cache.pending}</span>` : ''}</button>`).join('')).join('');
+  $('title').textContent = TITLES[tab][0]; $('subtitle').textContent = TITLES[tab][1];
+  $('content').innerHTML = '<div class="empty">Đang tải…</div>';
+  await VIEWS[tab]();
+}
+const out = h => { $('content').innerHTML = h; };
+const loanStatus = s => `<span class="status st-${esc(s)}">${{ PENDING: 'Chờ duyệt', APPROVED: 'Đã duyệt', REJECTED: 'Từ chối', SUCCESS: 'Thành công' }[s] || esc(s)}</span>`;
+const statCard = (label, val, sub, hl) => `<div class="card stat ${hl ? 'hl' : ''}"><small>${label}</small><div class="v">${val}</div><div class="s">${sub || ''}</div></div>`;
+const txRows = (txs, acct) => txs.map(t => { const out = t.fromAcct === acct; return `<tr><td><b>${esc(t.id)}</b></td><td>${fdate(t.date)}</td><td>${esc(out ? t.toAcct : t.fromAcct)}</td><td>${esc(t.memo)}</td><td class="num ${out ? 'out-amt' : 'in-amt'}">${out ? '−' : '+'}${vnd(t.amount)}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">Chưa có giao dịch</td></tr>';
+
+/* ---------- Views ---------- */
+const VIEWS = {
+  async overview() {
+    if (me.role === 'USER') {
+      const r = await api('/api/accounts/detail'); const a = r.data.data; me = { ...me, ...a }; cache.tx = r.data.transactions;
+      return out(`<div class="grid g3">
+        ${statCard('Số dư khả dụng', vnd(a.balance), `Tài khoản ${esc(a.accountId)}`, true)}
+        ${statCard('Hạn mức tín dụng', vnd(a.creditLimit), 'Đã được cấp')}
+        ${statCard('Phân hạng', esc(a.tier), 'Khách hàng cá nhân')}</div>
+        <div class="grid g21" style="margin-top:18px">
+          <div class="card"><h3>${icon('dash')}Thao tác nhanh</h3><div class="grid" style="gap:10px">
+            <button class="btn" onclick="go('transfer')">${icon('transfer')}Chuyển tiền</button>
+            <button class="btn ghost" onclick="go('history')">${icon('file')}Xuất sao kê</button>
+            <button class="btn ghost" onclick="go('loans')">${icon('landmark')}Đăng ký vay</button></div></div>
+          <div class="card"><h3>${icon('file')}Giao dịch gần đây</h3><div class="tbl-wrap"><table class="t"><thead><tr><th>Mã GD</th><th>Thời gian</th><th>Đối tác</th><th>Nội dung</th><th class="num">Số tiền</th></tr></thead><tbody>${txRows(cache.tx.slice(0, 5), a.accountId)}</tbody></table></div></div>
+        </div>`);
+    }
+    const [c, l] = await Promise.all([api('/api/staff/customers'), api('/api/loans')]);
+    const pend = l.data.data.filter(x => x.status === 'PENDING'); cache.pending = pend.length;
+    const isAdmin = me.role === 'ADMIN';
+    out(`<div class="grid g3">
+      ${statCard('Khách hàng', c.data.data.length, 'Đang quản lý', true)}
+      ${statCard('Hồ sơ chờ duyệt', pend.length, `Tổng ${vnd(pend.reduce((s, x) => s + x.amount, 0))}`)}
+      ${statCard('Hạn mức phê duyệt của bạn', isAdmin ? 'Không giới hạn' : '≤ 100 triệu ₫', isAdmin ? 'Bao gồm hồ sơ VIP' : 'Hồ sơ lớn hơn cần Giám đốc')}</div>
+      <div class="grid g2" style="margin-top:18px">
+        <div class="card"><h3>${icon('shield')}Phạm vi quyền của bạn</h3><ul class="perm">
+          <li class="y">${icon('check')}Tra cứu danh sách khách hàng (chỉ đọc)</li>
+          <li class="y">${icon('check')}${isAdmin ? 'Duyệt mọi hồ sơ vay, kể cả VIP' : 'Duyệt hồ sơ vay đến 100.000.000 ₫'}</li>
+          ${isAdmin ? `<li class="y">${icon('check')}Xem nhật ký kiểm toán và phân quyền người dùng</li>` : `<li class="n">${icon('x')}Không xem được nhật ký kiểm toán</li>`}
+          <li class="n">${icon('x')}Không lập lệnh chuyển tiền hộ khách (tách nhiệm vụ)</li>
+          <li class="n">${icon('x')}Không chỉnh sửa số dư trực tiếp</li></ul></div>
+        <div class="card"><h3>${icon('landmark')}Hồ sơ đang chờ</h3>${pend.length ? `<table class="t"><tbody>${pend.map(x => `<tr><td><b>#${x.loanId}</b> ${esc(x.borrower)}</td><td class="num">${vnd(x.amount)}</td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" onclick="go('approve')">Xử lý hồ sơ</button></div>` : '<div class="empty">Không có hồ sơ nào chờ duyệt</div>'}</div>
+      </div>`);
+    render_navCount();
+  },
+
+  async transfer() {
+    out(`<div class="grid g21"><form class="card" onsubmit="return confirmTransfer(event)">
+      <h3>${icon('transfer')}Thông tin chuyển tiền</h3>
+      <div class="field"><label>Tài khoản nguồn</label><input value="${esc(me.accountId)} · ${esc(me.fullName)}" readonly><small>Số dư khả dụng: ${vnd(me.balance)}</small></div>
+      <div class="field"><label for="to">Tài khoản thụ hưởng</label><input id="to" inputmode="numeric" pattern="\\d{4}" maxlength="4" placeholder="Ví dụ: 1002" required></div>
+      <div class="field"><label for="amt">Số tiền (VNĐ)</label><input id="amt" type="number" min="1000" max="500000000" step="1000" placeholder="500000" required></div>
+      <div class="field"><label for="memo">Nội dung</label><input id="memo" maxlength="100" placeholder="Nội dung chuyển tiền"></div>
+      <button class="btn">Tiếp tục</button></form>
+      <div class="card"><h3>${icon('shield')}Lưu ý an toàn</h3><ul class="perm">
+        <li class="y">${icon('check')}Nguồn tiền luôn là tài khoản của bạn, máy chủ không nhận tài khoản nguồn do người dùng chỉ định.</li>
+        <li class="y">${icon('check')}Hạn mức một giao dịch: 500.000.000 ₫.</li>
+        <li class="y">${icon('check')}Mọi giao dịch được ghi vào nhật ký kiểm toán.</li></ul><div id="receipt"></div></div></div>`);
+  },
+
+  async history() {
+    const r = await api('/api/accounts/detail'); cache.tx = r.data.transactions; cache.filter = 'all'; drawHistory(); },
+
+  async loans() {
+    const r = await api('/api/loans'); const rows = r.data.data;
+    out(`<div class="grid g21"><form class="card" onsubmit="return applyLoan(event)"><h3>${icon('landmark')}Đăng ký vay mới</h3>
+      <div class="field"><label for="la">Số tiền đề nghị (VNĐ)</label><input id="la" type="number" min="1000000" max="5000000000" step="1000000" value="30000000" required></div>
+      <div class="field"><label for="lt">Kỳ hạn</label><select id="lt"><option>6 tháng</option><option selected>12 tháng</option><option>24 tháng</option><option>36 tháng</option></select></div>
+      <div class="field"><label for="lp">Mục đích vay</label><input id="lp" maxlength="120" value="Vay tiêu dùng mua sắm"></div>
+      <button class="btn block">Gửi hồ sơ</button></form>
+      <div class="card"><h3>${icon('file')}Hồ sơ của bạn</h3><div class="tbl-wrap"><table class="t"><thead><tr><th>Mã</th><th class="num">Số tiền</th><th>Kỳ hạn</th><th>Trạng thái</th><th>Người duyệt</th></tr></thead><tbody>
+      ${rows.map(l => `<tr><td><b>#${l.loanId}</b></td><td class="num">${vnd(l.amount)}</td><td>${esc(l.term)}</td><td>${loanStatus(l.status)}</td><td>${esc(l.approvedBy || '—')}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Chưa có hồ sơ</td></tr>'}</tbody></table></div></div></div>`);
+  },
+
+  async customers() {
+    const r = await api('/api/staff/customers'); cache.cust = r.data.data;
+    out(`<div class="card"><div class="toolbar"><div class="field grow" style="margin:0;max-width:340px"><label class="sr" for="q">Tìm</label><input id="q" placeholder="Tìm theo số TK, tên, số điện thoại…" oninput="drawCust()"></div><span class="pill">${icon('lock')}Chỉ đọc</span></div><div class="tbl-wrap" id="custTbl"></div></div>`);
+    drawCust();
+  },
+
+  async approve() {
+    const r = await api('/api/loans'); cache.loans = r.data.data; cache.pending = cache.loans.filter(l => l.status === 'PENDING').length; drawApprove();
+  },
+
+  async audit() {
+    const r = await api('/api/admin/audit'); cache.audit = r.data.data; cache.afilter = 'all'; drawAudit();
+  },
+
+  async users() {
+    const r = await api('/api/admin/users');
+    out(`<div class="card"><div class="tbl-wrap"><table class="t"><thead><tr><th>ID</th><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th></tr></thead><tbody>${r.data.data.map(u => `<tr><td>${u.id}</td><td><b>${esc(u.username)}</b></td><td>${esc(u.fullName)}</td><td><select ${u.id === me.id ? 'disabled title="Không thể tự đổi quyền"' : ''} onchange="setRole(${u.id},this.value)" aria-label="Vai trò ${esc(u.username)}">${['USER', 'TELLER', 'ADMIN'].map(x => `<option ${x === u.role ? 'selected' : ''}>${x}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div></div>`);
+  },
+
+  async profile() {
+    out(`<div class="grid g2"><form class="card" onsubmit="return saveProfile(event)"><h3>${icon('user')}Thông tin liên hệ</h3>
+      <div class="field"><label for="pf">Họ và tên</label><input id="pf" value="${esc(me.fullName)}" maxlength="80" required></div>
+      <div class="field"><label for="pp">Số điện thoại</label><input id="pp" value="${esc(me.phone)}" pattern="0\\d{9}" required><small>10 chữ số, bắt đầu bằng 0</small></div>
+      <div class="field"><label for="pe">Email</label><input id="pe" type="email" value="${esc(me.email)}" required></div>
+      <button class="btn">Lưu thay đổi</button><p class="desc" style="margin:12px 0 0">Vai trò, số dư, hạn mức và phân hạng không thể thay đổi từ hồ sơ.</p></form>
+      <form class="card" onsubmit="return testWebhook(event)"><h3>${icon('bell')}Webhook biến động số dư</h3>
+      <p class="desc">Máy chủ xác thực địa chỉ endpoint của bạn. Chỉ chấp nhận http/https công khai.</p>
+      <div class="field"><label for="wh">Webhook URL</label><input id="wh" value="https://example.com/webhook" required></div>
+      <button class="btn">Kiểm tra kết nối</button><pre class="out hide" id="whOut"></pre></form></div>`);
+  },
+};
+function render_navCount() { /* cập nhật huy hiệu số hồ sơ chờ duyệt */ const b = [...document.querySelectorAll('#nav button')].find(x => x.textContent.includes('Phê duyệt')); if (b && cache.pending && !b.querySelector('.cnt')) b.insertAdjacentHTML('beforeend', `<span class="cnt">${cache.pending}</span>`); }
+
+/* ---------- Draw helpers ---------- */
+function drawHistory() {
+  const f = cache.filter, a = me.accountId;
+  const rows = cache.tx.filter(t => f === 'all' || (f === 'out' ? t.fromAcct === a : t.toAcct === a));
+  out(`<div class="card"><div class="toolbar"><div class="seg2" role="group" aria-label="Lọc">${[['all', 'Tất cả'], ['in', 'Tiền vào'], ['out', 'Tiền ra']].map(([k, l]) => `<button class="${f === k ? 'on' : ''}" onclick="cache.filter='${k}';drawHistory()">${l}</button>`).join('')}</div>
+    <button class="btn" onclick="downloadStatement()">${icon('down')}Xuất sao kê (.csv)</button></div>
+    <div class="tbl-wrap"><table class="t"><thead><tr><th>Mã GD</th><th>Thời gian</th><th>Đối tác</th><th>Nội dung</th><th class="num">Số tiền</th></tr></thead><tbody>${txRows(rows, a)}</tbody></table></div></div>`);
+}
+function drawCust() {
+  const q = ($('q')?.value || '').toLowerCase();
+  const rows = cache.cust.filter(c => [c.accountId, c.fullName, c.phone, c.tier].join(' ').toLowerCase().includes(q));
+  $('custTbl').innerHTML = `<table class="t"><thead><tr><th>Số TK</th><th>Họ tên</th><th>Phân hạng</th><th>Điện thoại</th><th class="num">Số dư</th><th class="num">Hạn mức</th></tr></thead><tbody>${rows.map(c => `<tr><td><b>${esc(c.accountId)}</b></td><td>${esc(c.fullName)}</td><td>${esc(c.tier)}</td><td>${esc(c.phone)}</td><td class="num">${vnd(c.balance)}</td><td class="num">${vnd(c.creditLimit)}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Không có kết quả</td></tr>'}</tbody></table>`;
+}
+function drawApprove() {
+  const isAdmin = me.role === 'ADMIN';
+  out(`<div class="card"><p class="desc">${isAdmin ? 'Giám đốc chi nhánh có thẩm quyền duyệt mọi hồ sơ.' : 'Giao dịch viên chỉ duyệt hồ sơ đến <b>100.000.000 ₫</b>. Hồ sơ VIP cần Giám đốc chi nhánh.'}</p>
+  <div class="tbl-wrap"><table class="t"><thead><tr><th>Mã</th><th>Khách hàng</th><th class="num">Số tiền</th><th>Mục đích</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody>${cache.loans.map(l => {
+    const vip = l.amount > 100000000, locked = vip && !isAdmin;
+    return `<tr><td><b>#${l.loanId}</b></td><td>${esc(l.borrower)}<br><small style="color:var(--muted)">TK ${esc(l.accountId)}</small></td><td class="num"><b>${vnd(l.amount)}</b>${vip ? '<span class="vip">VIP</span>' : ''}</td><td>${esc(l.purpose)}<br><small style="color:var(--muted)">${esc(l.term)} · ${esc(l.rate)}</small></td><td>${loanStatus(l.status)}${l.approvedBy ? `<br><small style="color:var(--muted)">${esc(l.approvedBy)}</small>` : ''}</td>
+    <td>${l.status === 'PENDING' ? `<div class="row" style="gap:6px"><button class="btn sm ok" onclick="decide(${l.loanId},'APPROVED')">Duyệt</button><button class="btn sm bad" onclick="decide(${l.loanId},'REJECTED')">Từ chối</button></div>${locked ? '<small style="color:var(--warn)">Cần cấp Giám đốc</small>' : ''}` : '—'}</td></tr>`;
+  }).join('')}</tbody></table></div></div>`);
+}
+const EVT = { DENY_IDOR: ['Chặn IDOR', 0], DENY_HPP: ['Chặn HPP', 0], DENY_ROLE: ['Chặn vai trò', 0], DENY_METHOD: ['Chặn method', 0], DENY_LIMIT: ['Vượt thẩm quyền', 0], DENY_MASS_ASSIGN: ['Vô hiệu mass assignment', 0], DENY_PATH: ['Chặn path traversal', 0], DENY_SSRF: ['Chặn SSRF', 0],
+  LOGIN: ['Đăng nhập', 'ok'], TRANSFER: ['Chuyển tiền', 'ok'], LOAN_APPLY: ['Đăng ký vay', 'ok'], LOAN_APPROVED: ['Duyệt vay', 'ok'], LOAN_REJECTED: ['Từ chối vay', 'ok'], STATEMENT: ['Xuất sao kê', 'ok'] };
+function drawAudit() {
+  const f = cache.afilter, isDeny = e => e.startsWith('DENY_');
+  const rows = cache.audit.filter(e => f === 'all' || (f === 'deny' ? isDeny(e.event) : !isDeny(e.event)));
+  out(`<div class="card"><div class="toolbar"><div class="seg2">${[['all', 'Tất cả'], ['deny', 'Bị từ chối'], ['biz', 'Nghiệp vụ']].map(([k, l]) => `<button class="${f === k ? 'on' : ''}" onclick="cache.afilter='${k}';drawAudit()">${l}</button>`).join('')}</div><button class="btn ghost" onclick="views_audit()">Làm mới</button></div>
+  <div class="tbl-wrap"><table class="t"><thead><tr><th>Thời gian</th><th>Tác nhân</th><th>Sự kiện</th><th>Chi tiết</th></tr></thead><tbody>${rows.map(e => { const d = isDeny(e.event); const [lbl] = EVT[e.event] || [e.event]; return `<tr><td>${fdate(e.time)}</td><td><b>${esc(e.user)}</b></td><td><span class="status ${d ? 'st-REJECTED' : 'st-SUCCESS'}">${esc(lbl)}</span></td><td>${esc(e.detail)}</td></tr>`; }).join('') || '<tr><td colspan="4" class="empty">Không có sự kiện</td></tr>'}</tbody></table></div></div>`);
+}
+const views_audit = () => VIEWS.audit();
+
+/* ---------- Actions ---------- */
+function confirmTransfer(e) {
+  e.preventDefault();
+  const to = $('to').value.trim(), amount = Number($('amt').value), memo = $('memo').value.trim();
+  modal({ iconName: 'transfer', title: 'Xác nhận chuyển tiền', body: `<dl><dt>Từ tài khoản</dt><dd>${esc(me.accountId)}</dd><dt>Đến tài khoản</dt><dd>${esc(to)}</dd><dt>Số tiền</dt><dd>${vnd(amount)}</dd><dt>Nội dung</dt><dd>${esc(memo || '—')}</dd></dl>`,
+    actions: [{ label: 'Hủy' }, { label: 'Xác nhận', primary: true, onClick: () => submitTransfer(to, amount, memo) }] });
+  return false;
+}
+async function submitTransfer(to, amount, memo) {
+  const r = await api('/api/transactions/transfer', 'POST', { toAccountId: to, amount, memo });
+  if (!r.ok) return toast(r.data.error || 'Giao dịch thất bại', true);
+  me.balance = r.data.newBalance; const t = r.data.transaction;
+  toast('Chuyển tiền thành công');
+  $('receipt').innerHTML = `<div class="receipt"><b>Biên lai giao dịch</b><dl style="margin-top:10px"><dt>Mã GD</dt><dd>${esc(t.id)}</dd><dt>Thời gian</dt><dd>${fdate(t.date)}</dd><dt>Đến TK</dt><dd>${esc(t.toAcct)}</dd><dt>Số tiền</dt><dd>${vnd(t.amount)}</dd><dt>Số dư còn lại</dt><dd>${vnd(r.data.newBalance)}</dd></dl></div>`;
+}
+async function downloadStatement() {
+  const r = await api('/api/statements/download?file=' + encodeURIComponent(me.stmtFile));
+  if (!r.ok) return toast(r.data.error || 'Không xuất được sao kê', true);
+  const url = URL.createObjectURL(new Blob(['﻿' + r.data.content], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = r.data.fileName; a.click(); URL.revokeObjectURL(url);
+  toast('Đã xuất ' + r.data.fileName);
+}
+async function applyLoan(e) {
+  e.preventDefault();
+  const r = await api('/api/loans/apply', 'POST', { amount: Number($('la').value), term: $('lt').value, purpose: $('lp').value });
+  toast(r.ok ? r.data.message : r.data.error, !r.ok); if (r.ok) VIEWS.loans(); return false;
+}
+async function decide(id, action) {
+  const r = await api('/api/admin/approve-loan', 'POST', { loanId: id, action });
+  toast(r.ok ? r.data.message : r.data.error, !r.ok);
+  const l = await api('/api/loans'); cache.loans = l.data.data; cache.pending = cache.loans.filter(x => x.status === 'PENDING').length; drawApprove(); render_navCount();
+}
+async function setRole(id, role) { const r = await api(`/api/admin/users/${id}/role`, 'PUT', { role }); toast(r.ok ? 'Đã cập nhật vai trò' : r.data.error, !r.ok); VIEWS.users(); }
+async function saveProfile(e) {
+  e.preventDefault();
+  const r = await api('/api/profile/update', 'PUT', { fullName: $('pf').value, phone: $('pp').value, email: $('pe').value });
+  if (r.ok) { me = { ...me, ...r.data.updatedUser }; $('meName').textContent = me.fullName; }
+  toast(r.ok ? 'Đã lưu hồ sơ' : r.data.error, !r.ok); return false;
+}
+async function testWebhook(e) {
+  e.preventDefault(); const r = await api('/api/webhooks/test', 'POST', { webhookUrl: $('wh').value });
+  const o = $('whOut'); o.classList.remove('hide'); o.className = 'out' + (r.ok ? '' : ' err'); o.textContent = r.data.message || r.data.error; return false;
+}
+
+boot();
+</script>
+</body>
+</html>

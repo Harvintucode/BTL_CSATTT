@@ -1,0 +1,48 @@
+rules:
+  - id: express-mass-assignment
+    pattern-either:
+      - pattern: Object.assign($TARGET, req.body)
+      - pattern: Object.assign($TARGET, req.body, ...)
+    message: "[CWE-915] Gán trực tiếp req.body vào đối tượng dữ liệu. Dùng allowlist/DTO."
+    languages: [javascript, typescript]
+    severity: ERROR
+
+  - id: express-path-from-user-input
+    pattern-either:
+      - pattern: fs.readFileSync(path.join($BASE, req.query.$P), ...)
+      - pattern: fs.readFile(path.join($BASE, req.query.$P), ...)
+      - pattern: path.join($BASE, req.query.$P)
+    message: "[CWE-22] Đường dẫn dựng từ input người dùng. Tra theo ID/ownership và dùng path.basename + kiểm tra tiền tố."
+    languages: [javascript, typescript]
+    severity: ERROR
+
+  - id: express-ssrf-request-from-user-input
+    pattern-either:
+      - pattern: http.get(req.body.$U, ...)
+      - pattern: https.get(req.body.$U, ...)
+      - pattern: fetch(req.body.$U, ...)
+      - pattern: axios.get(req.body.$U, ...)
+    message: "[CWE-918] Server gọi URL do người dùng cung cấp. Phân giải DNS và chặn IP nội bộ trước khi gọi."
+    languages: [javascript, typescript]
+    severity: ERROR
+
+  - id: express-role-trusted-from-client
+    pattern-either:
+      - pattern: req.headers['x-forwarded-role']
+      - pattern: req.body.role === $X
+    message: "[CWE-285] Quyết định phân quyền dựa trên dữ liệu client gửi lên. Lấy role từ phiên phía server."
+    languages: [javascript, typescript]
+    severity: WARNING
+
+  - id: express-route-without-auth-middleware
+    patterns:
+      - pattern: $APP.$M($PATH, $HANDLER)
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: ^['"]/api/admin
+      - metavariable-regex:
+          metavariable: $M
+          regex: ^(get|post|put|patch|delete|all)$
+    message: "[CWE-862] Route /api/admin chỉ có handler, thiếu middleware xác thực/phân quyền."
+    languages: [javascript, typescript]
+    severity: ERROR

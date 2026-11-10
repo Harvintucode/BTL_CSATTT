@@ -1,0 +1,19 @@
+{
+  "name": "mini-web-bank",
+  "version": "1.0.0",
+  "description": "Mini web bank minh hoa phong chong OWASP A01:2025 Broken Access Control",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "seclab": "node security-lab/run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
