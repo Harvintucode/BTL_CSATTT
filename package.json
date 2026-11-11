@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test test/*.test.js",
-    "seclab": "node security-lab/run.js"
+    "seclab": "node security-lab/run.js",
+    "vuln": "node attack-demo/server-vulnerable.js",
+    "attack-demo": "node attack-demo/attack-scenarios.js",
+    "test-model": "node attack-demo/test-model.js"
   },
   "engines": {
     "node": ">=18"
